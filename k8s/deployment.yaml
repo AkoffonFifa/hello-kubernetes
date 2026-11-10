@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: kub-deploy 
+  labels:
+    app: kub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kub
+  template:
+    metadata:
+      labels:
+        app: kub
+    spec:
+      containers:
+        - name : hellokub
+          image: hello-kubernetes
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+
