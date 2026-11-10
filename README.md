@@ -1,44 +1,34 @@
-# Hello Kubernetes!
+# Learning Docker and Kubernetes with hello-kubernetes
 
-[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/paulbouwer/hello-kubernetes?sort=semver)](https://hub.docker.com/r/paulbouwer/hello-kubernetes) [![Docker Image Size (latest semver)](https://img.shields.io/docker/image-size/paulbouwer/hello-kubernetes?sort=semver)](https://hub.docker.com/r/paulbouwer/hello-kubernetes) [![Docker Pulls](https://img.shields.io/docker/pulls/paulbouwer/hello-kubernetes)](https://hub.docker.com/r/paulbouwer/hello-kubernetes) [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/hello-kubernetes)](https://artifacthub.io/packages/search?repo=hello-kubernetes)
+This project is my first hands-on practice with Docker and Kubernetes. I used the hello-kubernetes demo app, built its Docker image, and deployed it to a local Kubernetes cluster running in Docker Desktop.
 
-> **Using a tag before 1.11?** `1.0` to `1.10.1` are deprecated: they're unsupported, have known security vulnerabilities, and now show a warning. Upgrade to `1.11`. See [the pinned issue](https://github.com/paulbouwer/hello-kubernetes/issues/167).
+## What I did
 
-hello-kubernetes is a small web app to deploy on a Kubernetes cluster. Its page shows:
+- Built a Docker image from the project's Dockerfile with `docker build`
+- Wrote two Kubernetes manifests: `deployment.yaml` (Deployment) and `service.yaml` (Service)
+- Deployed the application to a local cluster with `kubectl apply`
+- Accessed the app locally with `kubectl port-forward`
+- Scaled the Deployment to 3 replicas with `kubectl scale`
+- Deleted a Pod and observed Kubernetes recreating it automatically
 
-- a message, **Hello world!** by default
-- the namespace, pod and node it runs on
-- the container image and its architecture
-
-![Hello world! from the hello-kubernetes image](hello-kubernetes.png)
-
-The image runs on `linux/amd64` and `linux/arm64` nodes, as a non-root user. It is on GHCR as `ghcr.io/paulbouwer/hello-kubernetes`, which we recommend, and on Docker Hub as `paulbouwer/hello-kubernetes`.
-
-**Documentation: [paulbouwer.github.io/hello-kubernetes](https://paulbouwer.github.io/hello-kubernetes/)**
-
-## Quick start
-
-Deploy it into your current namespace with `kubectl`, from the release file:
-
-```bash e2e
-kubectl apply -f https://github.com/paulbouwer/hello-kubernetes/releases/latest/download/hello-kubernetes.yaml
-kubectl rollout status deployment/hello-kubernetes-demo
-```
-
-Reach it on `http://localhost:8080/`:
+## Commands used
 
 ```bash
-kubectl port-forward service/hello-kubernetes-demo 8080:80
+docker build -t hello-kubernetes .
+kubectl config use-context docker-desktop
+kubectl apply -f k8s
+kubectl get pods
+kubectl port-forward svc/kub-service 8080:80
+kubectl scale deployment kub-deploy --replicas=3
 ```
 
-You see **Hello world!**, and the pod that answered. Remove it:
+## Result
 
-```bash e2e
-kubectl delete -f https://github.com/paulbouwer/hello-kubernetes/releases/latest/download/hello-kubernetes.yaml
-```
+The application runs on `http://localhost:8080`.
 
-To deploy with Helm, behind an Ingress or a Gateway, or with Kustomize, see the [documentation](https://paulbouwer.github.io/hello-kubernetes/docs/start-here/overview/).
+![Result](docs/capture.png)
+## What I learned
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). The repo has a [devcontainer](docs/development-environment.md) with every tool at a known version, and [docs/](docs/) has the contributor docs.
+- A Deployment keeps a set number of Pods running and replaces the ones that fail.
+- A Service gives Pods a stable address, and its `selector` must match the Pod labels.
+- The `targetPort` of a Service must match the port the container listens on.
